@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>实现canvas里图形的拖拽</title>
+<style>
+body{margin:0;padding:0;}
+.canvas{margin:20px;background:#ddd;}
+</style>
+</head>
+<body>
+<canvas id="canvas" class="canvas" width="500" height="300" ></canvas>
+<script>
+
+// 这里的“~” 不明白可以去这个地址看看https://zhidao.baidu.com/question/455686498933294885.html
+;~function(){
+    var canvas = document.getElementById("canvas"),
+        graphs = [],
+        graphAttr = [
+                        {x:60 , y :60 , w:100 , h:100 , bgColor:"rgba(111, 84, 153 , 0.8)" , canvasObj:canvas },
+                        {x:350 , y :120 , w:50 , h:50 , bgColor:"rgba(0, 33, 66 , 0.8)" , canvasObj:canvas , shape:"circle" },
+                        {x:200 , y :130 , w:70 , h:70 , bgColor:"rgba(228, 134, 50 , 0.8)" , canvasObj:canvas , shape:"triangle" }
+                    ],
+        tempGraphArr = [];
+
+    dragGraph = function(x , y , w , h , fillStyle , canvas , graphShape){
+        this.x = x;
+        this.y = y;
+        this.w = w;
+        this.h = h;
+        this.fillStyle = fillStyle || "rgba(26, 188, 156 , 0.5)";
+        this.canvas = canvas;
+        this.context = canvas.getContext("2d");
+        this.canvasPos = canvas.getBoundingClientRect();
+        this.graphShape = graphShape;
+    }
+
+    dragGraph.prototype = {
+        paint : function(){
+            this.context.beginPath();
+            this.context.fillStyle = this.fillStyle;
+            this.shapeDraw();
+            this.context.fill();
+            this.context.closePath();
+        },
+        isMouseInGraph : function(mouse){
+            this.context.beginPath();
+            this.shapeDraw();
+            return  this.context.isPointInPath(mouse.x , mouse.y);
+        },
+        shapeDraw : function(){
+            if(this.graphShape == "circle"){
+                this.context.arc(this.x , this.y , 50 , 0 , Math.PI*2);
+            }
+            else if(this.graphShape == "triangle"){
+                this.context.moveTo(this.x + 50 , this.y + 50);
+                this.context.lineTo(this.x + 100 , this.y + 130);
+                this.context.lineTo(this.x , this.y + 130);
+            }
+            else{
+                this.context.rect( this.x , this.y , this.w , this.h);
+            }
+        },
+        erase: function() {
+            this.context.clearRect(0,0,this.canvas.width,this.canvas.height);
+        }
+    }
+
+    canvas.addEventListener( "mousedown" , function(e){
+        var mouse = {
+            x : e.clientX - canvas.getBoundingClientRect().left,
+            y : e.clientY - canvas.getBoundingClientRect().top
+        };
+        graphs.forEach( function (shape) {
+            var offset = {
+                x : mouse.x - shape.x,
+                y : mouse.y - shape.y
+            };
+            if (shape.isMouseInGraph(mouse)) {
+                tempGraphArr.push(shape);
+                canvas.addEventListener("mousemove" , function(e){
+                    mouse = {
+                        x : e.clientX - canvas.getBoundingClientRect().left,
+                        y : e.clientY - canvas.getBoundingClientRect().top
+                    };
+
+                    if(shape === tempGraphArr[tempGraphArr.length-1]){
+                        shape.x = mouse.x - offset.x;
+                        shape.y = mouse.y - offset.y;
+
+                        shape.erase();
+                        drawGraph();
+                    }
+                } , false);
+                canvas.addEventListener("mouseup" , function(){
+                    tempGraphArr = [];
+                } , false);
+            }
+        });
+        e.preventDefault();
+    } , false);
+
+    for(var i = 0 ; i < graphAttr.length ; i++){
+        var graph = new dragGraph( graphAttr[i].x , graphAttr[i].y , graphAttr[i].w , graphAttr[i].h ,
+                                   graphAttr[i].bgColor , graphAttr[i].canvasObj , graphAttr[i].shape);
+        graphs.push(graph);
+    }
+
+    function drawGraph(){
+        for(var i = 0 ; i < graphAttr.length ; i++){
+            graphs[i].paint();
+        }
+    }
+    drawGraph();
+
+}()
+</script>
+
+</body>
+</html>
+
+
