@@ -5,7 +5,7 @@
 
 倘若说道拖拽的表现形式，有通过js结合mouse事件（mousedown、mousemove、mouseup）来改变DOM元素的left、top值得，也有[html5里拖放API](http://www.yi-jy.com/2013/08/24/html5%E6%8B%96%E6%94%BEapi%E7%AE%80%E4%BB%8B%E5%8F%8A%E5%BA%94%E7%94%A8/)，而今天讲的则是canvas里的图形拖拽。
 
-首先来看实例演示：[canvas里图形的拖拽](http://yi-jy.com/demo/201508/drag-graph-in-the-canvas/)
+首先来看实例演示：[canvas里图形的拖拽](https://smileyby.github.io/canvasDrag/)
 
 那么类似这种交互式如何实现的？我们知道，canvas没有DOM的概念，因此就更没有什么给元素绑定事件的做法。我们换个思路，要实现canvas里图形的拖拽，就相当于图形的绘制坐标不断改变，并且这个会制作表是随着鼠标移动而改变的。但如何将鼠标坐标与图形绘制坐标建立关系呢？其实原理和DOM里是一样的。
 
